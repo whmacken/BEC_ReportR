@@ -1,0 +1,55 @@
+---
+title: "Some Existing Code Chunks"
+author: "Will MacKenzie"
+date: "27/12/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+require(knitr)
+require(data.table)
+require(vegan)
+require(tidyverse)
+require (sp)
+require (rgdal)
+require(plyr)
+require(dplyr)
+require (indicspecies)
+require(ggplot2)
+require(ggthemes)
+require(labdsv)
+require (factoextra)
+require(vegclust)
+require(flextable)
+```
+
+## Build plot locations map with ggplot base
+```{r map of collections}
+plot_locations <- fread("./inputs/example_plot_locations.csv", header = TRUE) %>% distinct() ## update the file directly now
+provmap <- readOGR("./shapes/ProvincialOutline.shp")
+provmap@data$id <- rownames(provmap@data)
+province <- fortify(provmap, region = "id")## creates dataframe version of shape file for ggplot
+province <- join(province, provmap@data, by = "id")  ## joins back the data
+###create spatial layer of sampled mountains for overlay
+coordinates(plot_locations)<- ~ Longitude + Latitude  ##make as SpatialPointsDataFrame"
+proj4string(plot_locations)<- CRS("+proj=longlat +datum=NAD83") ## add current projection
+plot_georef <-spTransform(plot_locations, CRS(proj4string(provmap))) ### change projection to match Provincial Outline
+#identical(proj4string(provmap),proj4string(mnt_georef3))# double check that they match
+plot_georef <- as.data.frame(plot_georef) # convert back to data.frame for ggplot
+###ggplot graphic - could add in alpine polygons 
+provmap2 <- ggplot(data = province, aes(x=long, y=lat)) +
+  geom_polygon(color = "grey 10", fill = "grey 70", size = 1)  +
+  geom_path(color = "grey 20") +
+  #scale_fill_hue(l = 40) +
+  coord_equal() +
+  theme_light()+
+  #labs (title = "Figure 1. Mountains with Alpine Collections") +
+theme(legend.position = "none", axis.text = element_blank()) + 
+  theme_void()+
+geom_point(data=plot_georef, aes(x = Longitude, y = Latitude), inherit.aes = FALSE, alpha = 0.5, size = 2) +
+scale_shape() +
+  theme(legend.position = "right")
+print(provmap2)  
+  
+```
