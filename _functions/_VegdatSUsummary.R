@@ -1,5 +1,10 @@
+### Summarizes a long table of plot data by site units
+### calculates mean cover and constancy
+
 #SUTab = BECv13_SU
 #vegdata
+
+
 VegdatSUsummary <- function(vegdata, SUTab){
  
   vegDat <- as.data.table(vegdata)
