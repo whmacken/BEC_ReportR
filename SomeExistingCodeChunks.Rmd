@@ -22,6 +22,7 @@ require(labdsv)
 require (factoextra)
 require(vegclust)
 require(flextable)
+require(data.tree)
 ```
 
 ## Build plot locations map with ggplot base
